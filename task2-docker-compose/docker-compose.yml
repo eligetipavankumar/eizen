@@ -1,0 +1,55 @@
+services:
+  # Flask application service (not exposed directly)
+  flask-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: flask_app
+    environment:
+      - FLASK_ENV=production
+      - FLASK_APP=app.py
+    expose:
+      - "5000"
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+    # flask app does not depend on nginx; nginx is the proxy for flask
+
+  # Nginx reverse proxy with logging
+  nginx:
+    build:
+      context: .
+      dockerfile: nginx.Dockerfile
+    container_name: nginx_proxy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/logs:/var/log/nginx
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+    networks:
+      - app-network
+    depends_on:
+      - flask-app
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+
+networks:
+  app-network:
+    driver: bridge
+
+# Volume for persistent logs
+volumes:
+  nginx-logs:
+    driver: local
