@@ -1,9 +1,0 @@
-# enforce LF for shell scripts and wrappers
-*.sh text eol=lf
-bin/* text eol=lf
-
-# normalize common text files
-*.yml text eol=lf
-*.yaml text eol=lf
-*.json text eol=lf
-*.md text=auto eol=lf
