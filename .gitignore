@@ -1,0 +1,14 @@
+# Private keys
+*.pem
+
+# Logs
+*.log
+
+# Git internals
+repo.git/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+task1-bash-scripts
